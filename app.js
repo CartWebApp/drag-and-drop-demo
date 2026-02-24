@@ -1,5 +1,30 @@
 const list = document.getElementById('todo-list');
 
+// INITIALIZE LIST FROM LOCAL STORAGE OR DOM
+function initializeList() {
+  const savedOrder = localStorage.getItem('todo-order');
+  
+  if (savedOrder) {
+    // Restore from local storage
+    const order = JSON.parse(savedOrder);
+    order.forEach(({ id }) => {
+      const item = document.getElementById(id);
+      if (item) {
+        list.appendChild(item);
+      }
+    });
+    console.log("List restored from local storage");
+  } else {
+    // Load from DOM and save to local storage
+    const currentOrder = saveOrder();
+    localStorage.setItem('todo-order', JSON.stringify(currentOrder));
+    console.log("List initialized from DOM and saved to local storage");
+  }
+}
+
+// Initialize on page load
+initializeList();
+
 // HANDLE DRAG START
 list.addEventListener('dragstart', (event) => {
   if (!event.target.classList.contains('item')) return; // Ensure we're dragging an item
@@ -10,7 +35,7 @@ list.addEventListener('dragstart', (event) => {
   const ghost = event.target.cloneNode(true);
   ghost.style.backgroundColor = "lightblue";
   ghost.style.position = "absolute";
-  ghost.style.top = "-1000px"; // Hide the actual clone from view
+  ghost.style.left = "-9999px"; // Hide the actual clone from view
   document.body.appendChild(ghost);
   
   event.dataTransfer.setDragImage(ghost, 0, 0);
